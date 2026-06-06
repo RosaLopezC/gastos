@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#f7f3ee">
+<title>GastosPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="nav-inner">
+    <div class="logo"><span class="logo-icon">◎</span><span class="logo-text">Gastos<em>Pro</em></span></div>
+    <div class="nav-tabs">
+      <button class="tab active" data-page="dashboard" onclick="switchTab(this)">Dashboard</button>
+      <button class="tab" data-page="nuevo" onclick="switchTab(this)">+ Nuevo</button>
+      <button class="tab" data-page="historial" onclick="switchTab(this)">Historial</button>
+    </div>
+    <div class="nav-month"><select id="monthSelect" onchange="onMonthChange(this.value)"></select></div>
+  </div>
+</nav>
+<nav class="bottomnav">
+  <button class="bnav-btn active" data-page="dashboard" onclick="switchTab(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    Dashboard
+  </button>
+  <button class="bnav-btn add-btn" data-page="nuevo" onclick="switchTab(this)">
+    <div class="add-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg></div>
+  </button>
+  <button class="bnav-btn" data-page="historial" onclick="switchTab(this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+    Historial
+  </button>
+</nav>
+<main class="pages">
+  <!-- DASHBOARD -->
+  <section class="page active" id="page-dashboard">
+    <div class="container">
+      <div class="hero-card">
+        <div class="hero-label">Gastado en <span id="heroMonth">—</span></div>
+        <div class="hero-amount" id="heroAmount">S/ 0.00</div>
+        <div class="hero-meta">
+          <div class="hero-meta-item"><span class="meta-dot green"></span><span id="metaPresup">Presupuesto S/ 0</span></div>
+          <div class="hero-meta-item"><span class="meta-dot" id="metaDot"></span><span id="metaDisp">Disponible S/ 0</span></div>
+        </div>
+        <div class="hero-progress"><div class="hero-bar" id="heroBar"></div></div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-card"><div class="kpi-icon" style="background:#e8f5e9;color:#2e7d32">📊</div><div class="kpi-body"><div class="kpi-val" id="kpiTx">0</div><div class="kpi-lbl">Transacciones</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:#fff3e0;color:#e65100">📅</div><div class="kpi-body"><div class="kpi-val" id="kpiDaily">S/ 0</div><div class="kpi-lbl">Gasto diario</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:#fce4ec;color:#c62828">🔥</div><div class="kpi-body"><div class="kpi-val" id="kpiTopCat">—</div><div class="kpi-lbl">Mayor gasto</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:#e3f2fd;color:#1565c0">💰</div><div class="kpi-body"><div class="kpi-val" id="kpiSaving">0%</div><div class="kpi-lbl">% Ahorro</div></div></div>
+      </div>
+      <div class="section-head"><h2 class="section-title">Por categoría</h2><span class="section-sub" id="monthTotal"></span></div>
+      <div class="cat-breakdown" id="catBreakdown"></div>
+      <div class="charts-wrap">
+        <div class="chart-box"><div class="chart-label">Distribución</div><div class="donut-wrap"><canvas id="chartDonut"></canvas></div></div>
+        <div class="chart-box chart-box--line"><div class="chart-label">Tendencia mensual</div><div class="line-wrap"><canvas id="chartLine"></canvas></div></div>
+      </div>
+      <div class="section-head"><h2 class="section-title">Últimos gastos</h2><button class="link-btn" onclick="switchTab(document.querySelector('[data-page=historial]'))">Ver todos →</button></div>
+      <div class="tx-list" id="recentList"></div>
+    </div>
+  </section>
+
+  <!-- NUEVO -->
+  <section class="page" id="page-nuevo">
+    <div class="container container--narrow">
+      <div class="form-hero"><h1 class="form-title">Nuevo <em>gasto</em></h1><p class="form-sub">Registra en segundos, analiza después.</p></div>
+      <div class="amount-field"><span class="amount-prefix">S/</span><input type="number" id="fAmount" class="amount-input" placeholder="0.00" step="0.01" min="0" inputmode="decimal"></div>
+      <div class="field-group"><label class="field-label">¿En qué gastaste?</label><input type="text" id="fDesc" class="field-input" placeholder="Ej: Almuerzo, pasaje, luz..."></div>
+      <div class="field-group"><label class="field-label">Categoría</label><div class="cat-grid" id="catGrid"></div></div>
+      <div class="field-group"><label class="field-label">Tipo de gasto</label>
+        <div class="type-pills">
+          <button class="type-pill active" data-type="Necesidad" onclick="selectType(this)">🔴 Necesidad</button>
+          <button class="type-pill" data-type="Deseo" onclick="selectType(this)">🟡 Deseo</button>
+          <button class="type-pill" data-type="Inversión" onclick="selectType(this)">🟢 Inversión</button>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label class="field-label">Fecha</label><input type="date" id="fDate" class="field-input"></div>
+        <div class="field-group"><label class="field-label">Método de pago</label>
+          <select id="fMethod" class="field-input"><option>Efectivo</option><option>Yape / Plin</option><option>Tarjeta débito</option><option>Tarjeta crédito</option><option>Transferencia</option></select>
+        </div>
+      </div>
+      <div class="field-group"><label class="field-label">Nota (opcional)</label><input type="text" id="fNotes" class="field-input" placeholder="Detalles adicionales..."></div>
+      <button class="submit-btn" id="submitBtn" onclick="saveGasto()">
+        <span id="submitLabel">Guardar gasto</span>
+        <svg class="submit-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <div class="save-status" id="saveStatus"></div>
+      <div class="config-notice" id="configNotice">
+        <span>⚙️</span>
+        <span>Conecta tu Google Sheet para guardar en la nube. <button class="link-btn" onclick="openConfig()">Configurar →</button></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORIAL -->
+  <section class="page" id="page-historial">
+    <div class="container">
+      <div class="hist-controls">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Buscar gasto..." oninput="renderHistorial()">
+        </div>
+        <div class="filter-row" id="filterCats"></div>
+      </div>
+      <div class="tx-list" id="histList"></div>
+      <div class="empty-state" id="histEmpty" style="display:none">
+        <div class="empty-icon">🧾</div><p>Sin gastos registrados aún.</p>
+        <button class="link-btn" onclick="switchTab(document.querySelector('[data-page=nuevo]'))">Añadir el primero →</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- CONFIG MODAL -->
+<div class="modal-bg" id="configModal" onclick="closeConfigOutside(event)">
+  <div class="modal">
+    <div class="modal-head"><h3>Conectar Google Sheets</h3><button class="modal-x" onclick="closeConfig()">✕</button></div>
+    <div class="modal-body">
+      <p class="modal-intro">Pega la URL de tu Google Apps Script para sincronizar con tu hoja.</p>
+      <div class="field-group"><label class="field-label">URL del Script (Apps Script)</label><input type="url" id="configUrl" class="field-input" placeholder="https://script.google.com/macros/s/..."></div>
+      <div class="field-group"><label class="field-label">Presupuesto mensual total (S/.)</label><input type="number" id="configBudget" class="field-input" placeholder="2000" value="2000"></div>
+      <button class="submit-btn" onclick="saveConfig()">Guardar y conectar</button>
+      <div class="instructions">
+        <p class="inst-title">📋 Pasos para conectar</p>
+        <ol class="inst-list">
+          <li>Abre <a href="https://script.google.com" target="_blank">script.google.com</a> → Nuevo proyecto</li>
+          <li>Borra el código existente y pega el contenido de <strong>google-script.js</strong></li>
+          <li>Reemplaza <code>TU_SHEET_ID</code> con el ID de tu Google Sheet</li>
+          <li>Clic en <strong>Implementar → Nueva implementación</strong></li>
+          <li>Tipo: <strong>Aplicación web</strong> · Acceso: <strong>Cualquier persona</strong></li>
+          <li>Copia la URL y pégala arriba ↑</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
