@@ -440,31 +440,5 @@ function renderTxItems(items, showDel) {
   }).join('');
 }
 
-/* ── SAMPLE DATA (solo si no hay Sheet conectado) ────── */
-if (!gastos.length && !config.scriptUrl) {
-  const now = new Date().toISOString().slice(0,7);
-  const prev = new Date(new Date().setMonth(new Date().getMonth()-1)).toISOString().slice(0,7);
-  gastos = [
-    { id:'d1', date:`${now}-01`, amount:320.50, desc:'Supermercado Wong', category:'Alimentación', tipo:'Necesidad', method:'Efectivo', notes:'' },
-    { id:'d2', date:`${now}-02`, amount:18.00,  desc:'Taxi a trabajo',    category:'Transporte',   tipo:'Necesidad', method:'Yape / Plin', notes:'' },
-    { id:'d3', date:`${now}-03`, amount:39.90,  desc:'Netflix',           category:'Entretenimiento', tipo:'Deseo', method:'Tarjeta crédito', notes:'' },
-    { id:'d4', date:`${now}-05`, amount:45.00,  desc:'Farmacia',          category:'Salud',        tipo:'Necesidad', method:'Yape / Plin', notes:'Medicamentos' },
-    { id:'d5', date:`${now}-06`, amount:85.00,  desc:'Luz Enel',          category:'Servicios',    tipo:'Necesidad', method:'Transferencia', notes:'' },
-    { id:'d6', date:`${now}-07`, amount:99.00,  desc:'Internet Claro',    category:'Servicios',    tipo:'Necesidad', method:'Transferencia', notes:'' },
-    { id:'d7', date:`${now}-09`, amount:55.00,  desc:'Libro de diseño',   category:'Educación',    tipo:'Inversión', method:'Yape / Plin', notes:'' },
-    { id:'d8', date:`${now}-10`, amount:189.90, desc:'Zapatillas',        category:'Ropa',         tipo:'Deseo', method:'Tarjeta crédito', notes:'Adidas' },
-    { id:'d9', date:`${now}-12`, amount:22.50,  desc:'Almuerzo menú',     category:'Alimentación', tipo:'Deseo', method:'Efectivo', notes:'' },
-    { id:'d10',date:`${now}-14`, amount:120.00, desc:'Médico particular', category:'Salud',        tipo:'Necesidad', method:'Efectivo', notes:'' },
-    { id:'d11',date:`${now}-15`, amount:500.00, desc:'Ahorro mensual',    category:'Ahorro',       tipo:'Inversión', method:'Transferencia', notes:'' },
-    { id:'d12',date:`${now}-17`, amount:19.90,  desc:'Spotify',           category:'Entretenimiento', tipo:'Deseo', method:'Tarjeta débito', notes:'' },
-    { id:'d13',date:`${now}-18`, amount:95.00,  desc:'Mercado semanal',   category:'Alimentación', tipo:'Necesidad', method:'Efectivo', notes:'' },
-    { id:'d14',date:`${now}-20`, amount:75.00,  desc:'Camisas',           category:'Ropa',         tipo:'Necesidad', method:'Efectivo', notes:'' },
-    { id:'p1', date:`${prev}-05`, amount:290.00, desc:'Supermercado',     category:'Alimentación', tipo:'Necesidad', method:'Efectivo', notes:'' },
-    { id:'p2', date:`${prev}-10`, amount:85.00,  desc:'Luz Enel',         category:'Servicios',    tipo:'Necesidad', method:'Transferencia', notes:'' },
-    { id:'p3', date:`${prev}-15`, amount:500.00, desc:'Ahorro',           category:'Ahorro',       tipo:'Inversión', method:'Transferencia', notes:'' },
-    { id:'p4', date:`${prev}-22`, amount:200.00, desc:'Dentista',         category:'Salud',        tipo:'Necesidad', method:'Efectivo', notes:'' },
-  ];
-  saveLocal();
-}
 
 init();
