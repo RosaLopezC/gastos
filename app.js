@@ -439,8 +439,8 @@ function renderTxItems(items, showDel) {
   }).join('');
 }
 
-/* ── SAMPLE DATA ─────────────────────────────────────── */
-if (!gastos.length) {
+/* ── SAMPLE DATA (solo si no hay Sheet conectado) ────── */
+if (!gastos.length && !config.scriptUrl) {
   const now = new Date().toISOString().slice(0,7);
   const prev = new Date(new Date().setMonth(new Date().getMonth()-1)).toISOString().slice(0,7);
   gastos = [
