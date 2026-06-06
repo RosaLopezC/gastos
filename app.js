@@ -193,11 +193,12 @@ function saveLocal() {
 
 /* ── GOOGLE SHEETS SYNC ───────────────────────────────── */
 async function sendToSheet(g) {
-  const res = await fetch(config.scriptUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'add', ...g })
+  const params = new URLSearchParams({
+    action: 'add', id: g.id, date: g.date, desc: g.desc,
+    category: g.category, amount: g.amount,
+    tipo: g.tipo||'', method: g.method||'', notes: g.notes||''
   });
+  const res = await fetch(`${config.scriptUrl}?${params}`);
   if (!res.ok) throw new Error('Sheet error');
   return res.json();
 }
