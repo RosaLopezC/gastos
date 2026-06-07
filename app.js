@@ -205,6 +205,8 @@ async function sendToSheet(g) {
 
 async function syncFromSheet() {
   try {
+    // Load config first (budget sync)
+    await loadConfigFromSheet();
     const res = await fetch(`${config.scriptUrl}?action=get`);
     const data = await res.json();
     if (data.rows && data.rows.length) {
@@ -231,13 +233,17 @@ function openConfig() {
 function closeConfig() { document.getElementById('configModal').classList.remove('open'); }
 function closeConfigOutside(e) { if (e.target.id === 'configModal') closeConfig(); }
 
-function saveConfig() {
+async function saveConfig() {
   config.scriptUrl = document.getElementById('configUrl').value.trim();
   config.budget    = parseFloat(document.getElementById('configBudget').value) || 2000;
   localStorage.setItem('gp_config', JSON.stringify(config));
   closeConfig();
   checkConfigNotice();
-  if (config.scriptUrl) syncFromSheet();
+  if (config.scriptUrl) {
+    // Push budget to Sheet so all devices share it
+    await pushConfigToSheet('presupuesto', config.budget);
+    syncFromSheet();
+  }
 }
 
 function checkConfigNotice() {
@@ -440,5 +446,33 @@ function renderTxItems(items, showDel) {
   }).join('');
 }
 
+
+async function pushConfigToSheet(key, value) {
+  if (!config.scriptUrl) return;
+  try {
+    const params = new URLSearchParams({ action: 'setConfig', key, value });
+    await fetch(`${config.scriptUrl}?${params}`);
+  } catch(e) { console.log('Config push failed', e); }
+}
+
+async function loadConfigFromSheet() {
+  if (!config.scriptUrl) return;
+  try {
+    const res  = await fetch(`${config.scriptUrl}?action=getConfig`);
+    const data = await res.json();
+    if (data.config && data.config.presupuesto) {
+      const sheetBudget = parseFloat(data.config.presupuesto);
+      if (sheetBudget !== config.budget) {
+        config.budget = sheetBudget;
+        localStorage.setItem('gp_config', JSON.stringify(config));
+        // Update budget input in modal if open
+        const el = document.getElementById('configBudget');
+        if (el) el.value = sheetBudget;
+        renderDashboard();
+        renderBudgetGrid && renderBudgetGrid();
+      }
+    }
+  } catch(e) { console.log('Config load failed', e); }
+}
 
 init();
